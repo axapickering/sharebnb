@@ -147,6 +147,26 @@ class Space(db.Model):
     images = db.relationship("Image", backref="listing")
 
 
+class User_Space(db.Model):
+    """User Spaces Thru table"""
+
+    __tablename__ = "users_spaces"
+
+    username = db.Column(
+        db.String(30),
+        db.ForeignKey("users.username"),
+        primary_key=True,
+        nullable=False,
+    )
+
+    space_id = db.Column(
+        db.Integer,
+        db.ForeignKey("spaces.id"),
+        primary_key=True,
+        nullable=False,
+    )
+
+
 class Image(db.Model):
     """Image model"""
 
@@ -179,9 +199,9 @@ class Booking(db.Model):
         primary_key=True,
     )
 
-    user_id = db.Column(
-        db.Integer,
-        db.ForeignKey("users.id"),
+    username = db.Column(
+        db.String(30),
+        db.ForeignKey("users.username"),
         nullable=False,
     )
 

@@ -12,6 +12,7 @@ from flask_jwt_extended import (
 
 app = Flask(__name__)
 jwt = JWTManager(app)
+load_dotenv()
 
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
@@ -22,8 +23,6 @@ app.config["JWT_SECRET_KEY"] = os.environ["JWT_SECRET_KEY"]
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 connect_db(app)
-
-load_dotenv()
 
 
 @app.post("/signup")
@@ -65,7 +64,7 @@ def login():
 def get_all_users():
     """Gets a list of all users"""
     users = User.query.all()
-    return jsonify({users})
+    return jsonify(users)
 
 
 @app.get("/users/<username>")
@@ -74,7 +73,7 @@ def get_user(username):
     """Get data on one user"""
     user = User.query.get_or_404(username)
     del user[password]
-    return (jsonify({user}), 200)
+    return (jsonify(user), 200)
 
 
 @app.route("/users/<username>", methods=["PATCH"])
