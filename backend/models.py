@@ -162,7 +162,43 @@ class Space(db.Model):
         nullable=True,
     )
 
-    images = db.relationship("Image", backref="listing")
+    image_url = db.Column(
+        db.Text,
+        nullable=True
+    )
+
+   # images = db.relationship("Image", backref="listing")
+
+    def serialize(self):
+        """Serialize to dictionary."""
+
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "price": self.price,
+            "address": self.address,
+            "listed_at": self.listed_at,
+            "last_booked": self.last_booked,
+        }
+
+    def edit_space(self,
+                   id=None,
+                   title=None,
+                   description=None,
+                   price=None,
+                   address=None,
+                   listed_at=None,
+                   last_booked=None):
+        """Edits user profile"""
+
+        self.title = title or self.title
+        self.description = description or self.description
+        self.price = price or self.price
+        self.address = address or self.address
+        self.last_booked = last_booked or self.last_booked
+        self.listed_at = listed_at or self.listed_at
+
 
 
 class User_Space(db.Model):
@@ -185,26 +221,26 @@ class User_Space(db.Model):
     )
 
 
-class Image(db.Model):
-    """Image model"""
+# class Image(db.Model):
+#     """Image model"""
 
-    __tablename__ = "images"
+#     __tablename__ = "images"
 
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-    )
+#     id = db.Column(
+#         db.Integer,
+#         primary_key=True,
+#     )
 
-    space_id = db.Column(
-        db.Integer,
-        db.ForeignKey("spaces.id"),
-        nullable=False,
-    )
+#     space_id = db.Column(
+#         db.Integer,
+#         db.ForeignKey("spaces.id"),
+#         nullable=False,
+#     )
 
-    url = db.Column(
-        db.String(200),
-        nullable=False,
-    )
+#     url = db.Column(
+#         db.String(200),
+#         nullable=False,
+#     )
 
 
 class Booking(db.Model):
