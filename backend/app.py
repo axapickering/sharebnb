@@ -1,8 +1,9 @@
 from datetime import timedelta
 import os
+import boto3
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
-from models import db, connect_db, User, Space, Image
+from models import db, connect_db, User, Space
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import (
     create_access_token,
@@ -10,7 +11,13 @@ from flask_jwt_extended import (
     jwt_required,
     JWTManager,
 )
-from flask.ext.uuid import FlaskUUID
+import uuid
+
+# from PIL import Image
+
+# from botocore.exceptions import ClientError
+# from flask_uuid import FlaskUUID
+
 
 app = Flask(__name__)
 jwt = JWTManager(app)
@@ -18,7 +25,9 @@ load_dotenv()
 
 BUCKET_REGION = os.environ.get("BUCKET_REGION")
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
-BUCKET_BASE_URL = f'https://{BUCKET_NAME}.s3.{BUCKET_REGION}.amazonaws.com'
+BUCKET_BASE_URL = f"https://{BUCKET_NAME}.s3.{BUCKET_REGION}.amazonaws.com"
+AWS_ACCESS_KEY = os.environ.get("AWS_ACCESS_KEY")
+AWS_SECRET_KEY = os.environ.get("AWS_SECRET_KEY")
 
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
@@ -31,13 +40,13 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_SECRET_KEY"] = os.environ["JWT_SECRET_KEY"]
 
 connect_db(app)
-FlaskUUID(app)
-uuid = FlaskUUID()
+# FlaskUUID(app)
 
-import boto3
-from botocore.exceptions import ClientError
-
-BOTO3 = boto3.client('s3')
+BOTO3 = boto3.client(
+    "s3", aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY
+)
+s3 = boto3.resource("s3")
+bucket = s3.Bucket(BUCKET_NAME)
 
 
 @app.post("/signup")
@@ -127,16 +136,16 @@ def delete_user(username):
     """Deletes a user and their info"""
     user = get_jwt_identity()
 
-    if user['username'] != username and user['isAdmin'] is False:
+    if user["username"] != username and user["isAdmin"] is False:
         return (jsonify({"Error": "Unauthorized deletion"}), 401)
 
     try:
         user = User.query.get_or_404(username)
-        #Space.query.filter_by(username=user['username']).delete()
+        # Space.query.filter_by(username=user['username']).delete()
         db.session.delete(user)
         db.session.commit()
     except:
-        return (jsonify({"Error":"Deletion failed"}),400)
+        return (jsonify({"Error": "Deletion failed"}), 400)
 
     return (jsonify("Successful deletion"), 200)
 
@@ -146,7 +155,7 @@ def get_all_spaces():
     """Gets a list of all spaces"""
     spaces = Space.query.all()
     serialized = [space.serialize() for space in spaces]
-    return (jsonify({"spaces":serialized}), 200)
+    return (jsonify({"spaces": serialized}), 200)
 
 
 @app.get("/spaces/<int:id>")
@@ -156,27 +165,33 @@ def get_space(id):
     space = Space.query.get_or_404(id)
     return (jsonify(space.serialize()), 200)
 
+
 @app.post("/spaces")
 @jwt_required()
 def create_listing():
-    ''' Creates a new listing '''
+    """Creates a new listing"""
     data = request.form
-    for key in request.files:
-        image_name = key
-    print("Image:",image)
-    print("Form:",data)
+
+    print("Image:", request.files["image"])
+    print("Form:", data)
+
     user = get_jwt_identity()
-    random_uuid = uuid.uuid4()
+    random_uuid = str(uuid.uuid4())
+    image = request.files.get("image")
+
     try:
-        response = BOTO3.put_object(
-            Body=request.files.get(image_name),
-            Bucket=BUCKET_NAME,
-            Key=random_uuid,
-        )
-        space = Space(**data, image_url=f'random_uuid')
-        user = User.query.get_or_404(user['username'])
+        with open(image, "rb") as data:
+            bucket.upload_fileobj(
+                Fileobj=data,
+                Key=random_uuid,
+            )
+
+        url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{random_uuid}"
+        space = Space(**data, image_url=url)
+        user = User.query.get_or_404(user["username"])
         space.owner.append(user)
         db.session.commit()
+
     except IntegrityError:
         return (jsonify({"Error": "Invalid Request"}), 400)
     except ValueError:
