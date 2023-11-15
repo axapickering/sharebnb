@@ -109,7 +109,15 @@ class User(db.Model):
             "firstName": self.first_name,
             "lastName": self.last_name,
             "email": self.email,
+            "isAdmin": self.isAdmin,
         }
+
+    def edit_user(self, username=None, email=None, first_name=None, last_name=None):
+        """Edits user profile"""
+
+        self.first_name = first_name or self.first_name
+        self.last_name = last_name or self.last_name
+        self.email = email or self.email
 
 
 class Space(db.Model):

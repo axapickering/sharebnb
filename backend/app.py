@@ -1,3 +1,4 @@
+from datetime import timedelta
 import os
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
@@ -18,9 +19,11 @@ app.config["SQLALCHEMY_ECHO"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
     "DATABASE_URL", "postgresql:///sharebnb"
 )
-app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
-app.config["JWT_SECRET_KEY"] = os.environ["JWT_SECRET_KEY"]
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_SECRET_KEY"] = os.environ["JWT_SECRET_KEY"]
 
 connect_db(app)
 
@@ -41,7 +44,10 @@ def signup():
         db.session.commit()
 
     except IntegrityError:
-        return (jsonify({"Error": "Username or email already registered."}), 400)
+        return (jsonify({"Error": "Invalid Request"}), 400)
+
+    except ValueError:
+        return (jsonify({"Error": "Missing Required Field"}), 400)
 
     access_token = create_access_token(identity=user.serialize())
     return (jsonify(access_token=access_token), 201)
@@ -51,12 +57,12 @@ def signup():
 def login():
     """Logs in user, returning token with user data if successful"""
     data = request.json
-    user = User.authenticate(username=data.username, password=data.password)
+    print("DATA", data)
+    user = User.authenticate(username=data["username"], password=data["password"])
     if user is False:
         return (jsonify({"Error": "Could not authenticate user."}), 400)
     else:
-        del user[password]
-        access_token = create_access_token(identity=user)
+        access_token = create_access_token(identity=user.serialize())
         return (jsonify(access_token=access_token), 201)
 
 
@@ -65,7 +71,7 @@ def get_all_users():
     """Gets a list of all users"""
     users = User.query.all()
     serialized = [user.serialize() for user in users]
-    return jsonify({'users':serialized})
+    return jsonify({"users": serialized})
 
 
 @app.get("/users/<username>")
@@ -83,16 +89,22 @@ def update_user(username):
     data = request.json
     tokenData = get_jwt_identity()
 
-    if tokenData.username != username or tokenData.isAdmin is True:
+    if tokenData["username"] != username and tokenData["isAdmin"] is False:
         return (jsonify({"Error": "Unauthorized edit"}), 401)
 
-    user = User.query.get_or_404(tokenData.username)
-    user.first_name = data.first_name or user.first_name
-    user.last_name = data.last_name or user.last_name
-    user.email = data.email or user.email
+    if "username" in data:
+        return (jsonify({"Error": "Cannot edit username"}), 401)
+
+    if "isAdmin" in data and tokenData["isAdmin"] is False:
+        return (jsonify({"Error": "Cannot edit admin status"}), 401)
+
+    user = User.query.get_or_404(tokenData["username"])
+
+    user.edit_user(**data)
+
     try:
         db.session.commit()
-        return (jsonify({f"{username} edited successfully"}), 200)
+        return (jsonify(f"{username} edited successfully"), 200)
     except IntegrityError:
         return (jsonify({"Error": "Invalid body"}), 400)
 
@@ -117,7 +129,7 @@ def delete_user(username):
 def get_all_spaces():
     """Gets a list of all spaces"""
     spaces = Space.query.all()
-    return (jsonify(spaces),200)
+    return (jsonify(spaces), 200)
 
 
 @app.get("/spaces/<int:id>")
@@ -125,5 +137,5 @@ def get_all_spaces():
 def get_space(id):
     """Get data on one space"""
     user = User.query.get_or_404(id)
-    del user['password']
+    del user["password"]
     return (jsonify({user}), 200)
