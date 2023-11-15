@@ -2,7 +2,7 @@ from datetime import timedelta
 import os
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
-from models import db, connect_db, User, Space, Image
+from models import db, connect_db, User, Space
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import (
     create_access_token,
