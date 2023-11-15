@@ -207,7 +207,7 @@ class Booking(db.Model):
     )
 
     created_at = db.Column(
-        db.DatTime,
+        db.DateTime,
         default=db.func.now(),
         nullable=False,
     )

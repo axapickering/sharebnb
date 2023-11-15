@@ -11,21 +11,19 @@ from flask_jwt_extended import (
 )
 
 app = Flask(__name__)
-
-load_dotenv()
+jwt = JWTManager(app)
 
 app.config["SQLALCHEMY_ECHO"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
     "DATABASE_URL", "postgresql:///sharebnb"
 )
-app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
 app.config["JWT_SECRET_KEY"] = os.environ["JWT_SECRET_KEY"]
-
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-jwt = JWTManager(app)
 
 connect_db(app)
+
+load_dotenv()
 
 
 @app.post("/signup")
@@ -70,8 +68,8 @@ def get_all_users():
     return jsonify({users})
 
 
-@app.get("/user/<username>")
-@jwt_required
+@app.get("/users/<username>")
+@jwt_required()
 def get_user(username):
     """Get data on one user"""
     user = User.query.get_or_404(username)
@@ -79,8 +77,8 @@ def get_user(username):
     return (jsonify({user}), 200)
 
 
-@app.patch("/user/<username>")
-@jwt_required
+@app.route("/users/<username>", methods=["PATCH"])
+@jwt_required()
 def update_user(username):
     """Updates one user's info"""
     data = request.json
@@ -101,7 +99,7 @@ def update_user(username):
 
 
 @app.delete("/user/<username>")
-@jwt_required
+@jwt_required()
 def delete_user(username):
     """Deletes a user and their info"""
     user = get_jwt_identity()
@@ -114,3 +112,19 @@ def delete_user(username):
     db.session.commit()
 
     return (jsonify({f"{username} delete successfully"}), 200)
+
+
+@app.get("/spaces")
+def get_all_spaces():
+    """Gets a list of all users"""
+    users = User.query.all()
+    return jsonify({users})
+
+
+@app.get("/spaces/<int:id>")
+@jwt_required()
+def get_space(id):
+    """Get data on one space"""
+    user = User.query.get_or_404(id)
+    del user[password]
+    return (jsonify({user}), 200)
