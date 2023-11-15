@@ -58,7 +58,6 @@ class User(db.Model):
 
     listings = db.relationship(
         "Space",
-        secondary="users_spaces",
         backref="owner",
     )
 
@@ -130,6 +129,12 @@ class Space(db.Model):
         primary_key=True,
     )
 
+    owner = db.Column(
+        db.String(40),
+        db.ForeignKey("users.username"),
+        nullable=False,
+    )
+
     title = db.Column(
         db.String(40),
         nullable=False,
@@ -162,16 +167,14 @@ class Space(db.Model):
         nullable=True,
     )
 
-    image_url = db.Column(
-        db.Text,
-        nullable=True
-    )
+    image_url = db.Column(db.Text, nullable=True)
 
-   # images = db.relationship("Image", backref="listing")
+    # images = db.relationship("Image", backref="listing")
 
     def serialize(self):
         """Serialize to dictionary."""
-
+        print("OWNER", self.owner)
+        user = self.owner.serialize()
         return {
             "id": self.id,
             "title": self.title,
@@ -180,16 +183,20 @@ class Space(db.Model):
             "address": self.address,
             "listed_at": self.listed_at,
             "last_booked": self.last_booked,
+            "image_url": self.image_url,
+            "owner": user,
         }
 
-    def edit_space(self,
-                   id=None,
-                   title=None,
-                   description=None,
-                   price=None,
-                   address=None,
-                   listed_at=None,
-                   last_booked=None):
+    def edit_space(
+        self,
+        id=None,
+        title=None,
+        description=None,
+        price=None,
+        address=None,
+        listed_at=None,
+        last_booked=None,
+    ):
         """Edits user profile"""
 
         self.title = title or self.title
@@ -200,25 +207,24 @@ class Space(db.Model):
         self.listed_at = listed_at or self.listed_at
 
 
+# class User_Space(db.Model):
+#     """User Spaces Thru table"""
 
-class User_Space(db.Model):
-    """User Spaces Thru table"""
+#     __tablename__ = "users_spaces"
 
-    __tablename__ = "users_spaces"
+#     username = db.Column(
+#         db.String(30),
+#         db.ForeignKey("users.username"),
+#         primary_key=True,
+#         nullable=False,
+#     )
 
-    username = db.Column(
-        db.String(30),
-        db.ForeignKey("users.username"),
-        primary_key=True,
-        nullable=False,
-    )
-
-    space_id = db.Column(
-        db.Integer,
-        db.ForeignKey("spaces.id"),
-        primary_key=True,
-        nullable=False,
-    )
+#     space_id = db.Column(
+#         db.Integer,
+#         db.ForeignKey("spaces.id"),
+#         primary_key=True,
+#         nullable=False,
+#     )
 
 
 # class Image(db.Model):

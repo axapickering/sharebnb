@@ -96,7 +96,6 @@ def get_all_users():
 
 
 @app.get("/users/<username>")
-@jwt_required()
 def get_user(username):
     """Get data on one user"""
     user = User.query.get_or_404(username)
@@ -159,7 +158,6 @@ def get_all_spaces():
 
 
 @app.get("/spaces/<int:id>")
-@jwt_required()
 def get_space(id):
     """Get data on one space"""
     space = Space.query.get_or_404(id)
@@ -180,16 +178,17 @@ def create_listing():
     image = request.files.get("image")
 
     try:
-        with open(image, "rb") as data:
-            bucket.upload_fileobj(
-                Fileobj=data,
-                Key=random_uuid,
-            )
+        bucket.upload_fileobj(
+            Fileobj=image,
+            Key=random_uuid,
+            ExtraArgs={"ContentType": f"{image.content_type}"},
+        )
 
         url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{random_uuid}"
         space = Space(**data, image_url=url)
         user = User.query.get_or_404(user["username"])
-        space.owner.append(user)
+        space.owner = user
+        db.session.add(space)
         db.session.commit()
 
     except IntegrityError:
@@ -198,3 +197,29 @@ def create_listing():
         return (jsonify({"Error": "Missing Required Field"}), 400)
 
     return (jsonify(space.serialize()), 201)
+
+
+@app.route("/spaces/<int:id>", methods=["PATCH"])
+@jwt_required()
+def update_space(id):
+    """Updates one user's info"""
+    data = request.json
+    tokenData = get_jwt_identity()
+    space = Space.query.get_or_404(id)
+
+    if tokenData["username"] != space.owner and tokenData["isAdmin"] is False:
+        return (jsonify({"Error": "Unauthorized edit"}), 401)
+
+    if "username" in data:
+        return (jsonify({"Error": "Cannot edit username"}), 401)
+
+    if "isAdmin" in data and tokenData["isAdmin"] is False:
+        return (jsonify({"Error": "Cannot edit admin status"}), 401)
+
+    user.edit_user(**data)
+
+    try:
+        db.session.commit()
+        return (jsonify(f"{username} edited successfully"), 200)
+    except IntegrityError:
+        return (jsonify({"Error": "Invalid body"}), 400)
