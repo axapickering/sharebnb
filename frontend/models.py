@@ -50,6 +50,12 @@ class User(db.Model):
         nullable=False,
     )
 
+    isAdmin = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=False,
+    )
+
     listings = db.relationship(
         "Space",
         secondary="users_spaces",
