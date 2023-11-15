@@ -29,20 +29,21 @@ connect_db(app)
 def signup():
     """Signs up user, returning token with user data if successful"""
     data = request.json
+    print(data)
     try:
         user = User.signup(
-            username=data.username,
-            first_name=data.firstName,
-            last_name=data.lastName,
-            email=data.email,
-            password=data.password,
+            username=data.get("username"),
+            first_name=data.get("firstName"),
+            last_name=data.get("lastName"),
+            email=data.get("email"),
+            password=data.get("password"),
         )
         db.session.commit()
 
     except IntegrityError:
         return (jsonify({"Error": "Username or email already registered."}), 400)
 
-    del user[password]
+    del user["password"]
     access_token = create_access_token(identity=user)
     return (jsonify(access_token=access_token), 201)
 
