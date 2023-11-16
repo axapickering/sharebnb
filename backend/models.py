@@ -129,7 +129,7 @@ class Space(db.Model):
         primary_key=True,
     )
 
-    owner = db.Column(
+    owner_username = db.Column(
         db.String(40),
         db.ForeignKey("users.username"),
         nullable=False,
