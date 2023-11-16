@@ -61,6 +61,7 @@ class User(db.Model):
         backref="owner",
     )
 
+
     @classmethod
     def signup(cls, username, first_name, last_name, email, password):
         """Sign up user.
@@ -100,7 +101,7 @@ class User(db.Model):
 
         return False
 
-    def serialize(self, showListing=True):
+    def serialize(self, showListing=True, showBookings=False):
         """Serialize to dictionary."""
         userDict = {
             "username": self.username,
@@ -113,6 +114,10 @@ class User(db.Model):
         if showListing:
             listings = [listing.serialize(showOwner=False) for listing in self.listings]
             userDict["listings"] = listings
+
+        if showBookings:
+            bookings = [bookings.serialize() for bookings in self.bookings]
+            userDict["bookings"] = bookings
 
         return userDict
 
@@ -151,7 +156,7 @@ class Space(db.Model):
     )
 
     price = db.Column(
-        db.Numeric(2),
+        db.Numeric(12,2),
         nullable=False,
     )
 
@@ -178,16 +183,16 @@ class Space(db.Model):
 
     def serialize(self, showOwner=True):
         """Serialize to dictionary."""
-        print("OWNER", self.owner)
+
         listingDict = {
             "id": self.id,
             "title": self.title,
             "description": self.description,
             "price": self.price,
             "address": self.address,
-            "listed_at": self.listed_at,
-            "last_booked": self.last_booked,
-            "image_url": self.image_url,
+            "listedAt": self.listed_at,
+            "lastBooked": self.last_booked,
+            "imageUrl": self.image_url,
         }
 
         if showOwner:
@@ -259,7 +264,7 @@ class Booking(db.Model):
     )
 
     price = db.Column(
-        db.Numeric(2),
+        db.Numeric(12,2),
         nullable=False,
     )
 
@@ -279,5 +284,18 @@ class Booking(db.Model):
         nullable=False,
     )
 
-    space = db.relationship("Space", backref="booking")
-    renter = db.relationship("User", backref="booking")
+    space = db.relationship("Space", backref="bookings")
+    renter = db.relationship("User", backref="bookings")
+
+    def serialize(self):
+        """Serialize to dictionary."""
+
+        return  {
+            "id": self.id,
+            "username": self.username,
+            "spaceId": self.space_id,
+            "price": self.price,
+            "checkIn": self.check_in,
+            "checkOut": self.check_out,
+            "createdAt": self.created_at,
+        }

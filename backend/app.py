@@ -3,7 +3,7 @@ import os
 import boto3
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
-from models import db, connect_db, User, Space
+from models import db, connect_db, User, Space, Booking
 from sqlalchemy.exc import IntegrityError
 from flask_jwt_extended import (
     create_access_token,
@@ -49,6 +49,8 @@ s3 = boto3.resource("s3")
 bucket = s3.Bucket(BUCKET_NAME)
 
 
+################################  AUTHENTICATION ##############################################
+
 @app.post("/signup")
 def signup():
     """Signs up user, returning token with user data if successful"""
@@ -86,6 +88,7 @@ def login():
         access_token = create_access_token(identity=user.serialize())
         return (jsonify(access_token=access_token), 201)
 
+########################### USER ROUTES #####################################
 
 @app.get("/users")
 def get_all_users():
@@ -99,7 +102,7 @@ def get_all_users():
 def get_user(username):
     """Get data on one user"""
     user = User.query.get_or_404(username)
-    return (jsonify(user.serialize()), 200)
+    return (jsonify(user.serialize(showBookings=True)), 200)
 
 
 @app.route("/users/<username>", methods=["PATCH"])
@@ -147,6 +150,8 @@ def delete_user(username):
         return (jsonify({"Error": "Deletion failed"}), 400)
 
     return (jsonify("Successful deletion"), 200)
+
+################################## SPACE ROUTES ############################################
 
 
 @app.get("/spaces")
@@ -209,17 +214,73 @@ def update_space(id):
     tokenData = get_jwt_identity()
     space = Space.query.get_or_404(id)
 
-    if tokenData["username"] != space.owner and tokenData["isAdmin"] is False:
+    if tokenData["username"] != space.owner.username and tokenData["isAdmin"] is False:
         return (jsonify({"Error": "Unauthorized edit"}), 401)
 
     if id in data:
         return (jsonify({"Error": "ID is uneditable."}), 400)
 
-
-    space.edit_space(**data)
-
     try:
+        space.edit_space(**data)
         db.session.commit()
         return (jsonify("Space edited successfully"), 200)
-    except IntegrityError:
+    except:
         return (jsonify({"Error": "Invalid body"}), 400)
+
+@app.delete("/spaces/<int:id>")
+@jwt_required()
+def delete_space(id):
+    """Deletes a space"""
+
+    tokenData = get_jwt_identity()
+    space = Space.query.get_or_404(id)
+
+    if tokenData["username"] != space.owner.username and tokenData["isAdmin"] is False:
+        return (jsonify({"Error": "Unauthorized deletion"}), 401)
+
+    try:
+        db.session.delete(space)
+        db.session.commit()
+    except:
+        return (jsonify({"Error": "Deletion failed"}), 400)
+
+    return (jsonify("Successful deletion"), 200)
+
+################################## BOOKING ROUTES ############################################
+
+@app.get("/bookings")
+def get_all_bookings():
+    """Gets a list of all bookings"""
+    bookings = Booking.query.all()
+    serialized = [booking.serialize() for booking in bookings]
+    return (jsonify({"bookings": serialized}), 200)
+
+
+@app.get("/bookings/<int:id>")
+def get_booking(id):
+    """Get data on one booking"""
+    booking = Booking.query.get_or_404(id)
+    return (jsonify(booking.serialize()), 200)
+
+@app.post("/bookings")
+@jwt_required()
+def create_booking():
+    ''' Create a new booking '''
+    tokenData = get_jwt_identity()
+    data = request.json
+
+    try:
+        booking = Booking(**data,username=tokenData['username'])
+        # user = User.query.get_or_404(tokenData['username'])
+        # booking.renter = user
+        db.session.add(booking)
+        db.session.commit()
+
+    except ValueError:
+        return (jsonify({"Error": "Missing Required Field"}), 400)
+
+    except:
+        return (jsonify({"Error": "Invalid Request"}), 400)
+
+    return (jsonify({"booking":booking.serialize()}), 201)
+
