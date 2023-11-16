@@ -157,7 +157,6 @@ def delete_user(username):
 
     try:
         user = User.query.get_or_404(username)
-        # Space.query.filter_by(username=user['username']).delete()
         db.session.delete(user)
         db.session.commit()
     except:
@@ -189,14 +188,14 @@ def get_all_spaces():
 def get_space(id):
     """Get data on one space"""
     space = Space.query.get_or_404(id)
-    return (jsonify(space.serialize()), 200)
+    return (jsonify(space.serialize(showBookings=True)), 200)
 
 
 @app.post("/spaces")
 @jwt_required()
 @cross_origin()
 def create_listing():
-    """Creates a new listing"""
+    """Creates a new space"""
     data = request.form
 
     print("Image:", request.files["image"])
@@ -215,10 +214,8 @@ def create_listing():
 
         url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{random_uuid}"
         space = Space(**data, image_url=url)
-        print("CREATE SPACE", space)
         user = User.query.get_or_404(user["username"])
         user.listings.append(space)
-        print("SET OWNER", space)
         db.session.add(space)
         db.session.commit()
 

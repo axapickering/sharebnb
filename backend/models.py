@@ -178,8 +178,6 @@ class Space(db.Model):
 
     image_url = db.Column(db.Text, nullable=True)
 
-    # images = db.relationship("Image", backref="listing")
-
     def serialize(self, showOwner=True, showBookings=False):
         """Serialize to dictionary."""
 
@@ -197,10 +195,10 @@ class Space(db.Model):
         if showOwner:
             user = self.owner.serialize(showListing=False)
             listingDict["owner"] = user
-        # if showBookings:
-        #
-        #     bookings = self.owner.serialize(showListing=False)
-        #     listingDict["owner"] = user
+        if showBookings:
+            bookings = Booking.query.filter(Booking.space_id == self.id)
+            bookings = [bookings.serialize() for bookings in self.bookings]
+            listingDict["bookings"] = bookings
         return listingDict
 
     def edit_space(
@@ -213,7 +211,7 @@ class Space(db.Model):
         listed_at=None,
         last_booked=None,
     ):
-        """Edits user profile"""
+        """Edits users space"""
 
         self.title = title or self.title
         self.description = description or self.description
@@ -313,7 +311,7 @@ class Booking(db.Model):
         check_out=None,
         created_at=None,
     ):
-        """Edits user profile"""
+        """Edits a booking"""
 
         self.price = price or self.price
         self.check_in = check_in or self.check_in
