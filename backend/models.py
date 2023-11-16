@@ -198,6 +198,7 @@ class Space(db.Model):
             user = self.owner.serialize(showListing=False)
             listingDict["owner"] = user
         # if showBookings:
+        #
         #     bookings = self.owner.serialize(showListing=False)
         #     listingDict["owner"] = user
         return listingDict

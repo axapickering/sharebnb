@@ -12,6 +12,9 @@ from flask_jwt_extended import (
     JWTManager,
 )
 import uuid
+from flask import Flask
+from flask_cors import CORS
+
 
 # from PIL import Image
 
@@ -20,6 +23,7 @@ import uuid
 
 
 app = Flask(__name__)
+CORS(app)
 jwt = JWTManager(app)
 load_dotenv()
 
