@@ -52,6 +52,15 @@ function App() {
     setToken(res['access_token']);
   }
 
+  async function edit(formData) {
+    let oldData = user
+    let newData = await ShareBnbApi.update(formData);
+    setUser(newData);
+    return {newData, oldData};
+  }
+
+  // function that gets user listings and navigates to listings page, passing in user listings as prop
+
   return (
     <div>
       <userContext.Provider value={user}>
@@ -60,7 +69,7 @@ function App() {
     <div className="App container">
       <div className="row">
         <div className="col-9">
-        <RoutesList signup={signup} login={login} />
+        <RoutesList signup={signup} login={login} edit={edit} />
         </div>
       </div>
     </div>

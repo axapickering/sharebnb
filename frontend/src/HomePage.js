@@ -1,9 +1,11 @@
 import React from 'react';
+import SpaceList from "./Spaces/SpaceList"
+import userContext from './userContext';
 
 function HomePage() {
   return (
     <div>
-      <h2>Welcome to the homepage! </h2>
+      <SpaceList />
     </div>
   )
 }

@@ -15,7 +15,7 @@ import LoginForm from "../Forms/LoginForm";
  * App => RouteList -> Routes -> {Route, Route....}
  *
  */
-function RouteList({signup, login, update}) {
+function RouteList({signup, login, edit}) {
   const username = useContext(userContext)?.username;
 
   const routesLoggedIn =
@@ -23,7 +23,7 @@ function RouteList({signup, login, update}) {
       <>
         <Route element={<UserBookingsPage />} path="/bookings" />
         <Route element={<UserListingsPage />} path="/listings" />
-        <Route element={<ProfilePage handleSubmit={update}/>} path="/profile" />
+        <Route element={<ProfilePage edit={edit}/>} path="/profile" />
       </>
     )
 
