@@ -3,6 +3,11 @@ import { Route, Routes, Navigate } from 'react-router-dom';
 import HomePage from "../HomePage";
 import UserListingsPage from "../User/UserListingsPage"
 import UserBookingsPage from "../User/UserBookingsPage"
+import userContext from "../userContext";
+import ProfilePage from "../User/ProfilePage";
+import SignupForm from "../Forms/SignupForm";
+import LoginForm from "../Forms/LoginForm";
+
 
 /**
  * Registers routes

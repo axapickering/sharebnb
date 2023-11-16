@@ -1,13 +1,15 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import userContext from "../context/userContext";
+import userContext from "../userContext";
 
 /**
  * Renders Nav bar Links depending on if user is logged in
  *
  * App -> Navbar -> {Link,...}
  */
-function Navbar() {
+function Navbar({ logout }) {
+
+  const username = useContext(userContext)?.username;
 
   function navUserLoggedIn() {
     return (
