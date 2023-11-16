@@ -180,7 +180,7 @@ class Space(db.Model):
 
     # images = db.relationship("Image", backref="listing")
 
-    def serialize(self, showOwner=True):
+    def serialize(self, showOwner=True, showBookings=False):
         """Serialize to dictionary."""
 
         listingDict = {
@@ -197,6 +197,9 @@ class Space(db.Model):
         if showOwner:
             user = self.owner.serialize(showListing=False)
             listingDict["owner"] = user
+        # if showBookings:
+        #     bookings = self.owner.serialize(showListing=False)
+        #     listingDict["owner"] = user
         return listingDict
 
     def edit_space(

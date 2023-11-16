@@ -161,7 +161,13 @@ def delete_user(username):
 @app.get("/spaces")
 def get_all_spaces():
     """Gets a list of all spaces"""
-    spaces = Space.query.all()
+    print("QUERY:    !!!!!   ", request.args.get("nameLike"))
+    query = request.args.get("nameLike")
+    spaces = (
+        Space.query.filter(Space.title.ilike(f"%{query}%"))
+        if query
+        else Space.query.all()
+    )
     serialized = [space.serialize() for space in spaces]
     return (jsonify({"spaces": serialized}), 200)
 
