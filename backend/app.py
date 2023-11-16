@@ -49,7 +49,8 @@ s3 = boto3.resource("s3")
 bucket = s3.Bucket(BUCKET_NAME)
 
 
-################################  AUTHENTICATION ##############################################
+########################## AUTHENTICATION ##############################
+
 
 @app.post("/signup")
 def signup():
@@ -88,7 +89,9 @@ def login():
         access_token = create_access_token(identity=user.serialize())
         return (jsonify(access_token=access_token), 201)
 
-########################### USER ROUTES #####################################
+
+########################### USER ROUTES ################################
+
 
 @app.get("/users")
 def get_all_users():
@@ -151,7 +154,8 @@ def delete_user(username):
 
     return (jsonify("Successful deletion"), 200)
 
-################################## SPACE ROUTES ############################################
+
+########################### SPACE ROUTES ###############################
 
 
 @app.get("/spaces")
@@ -227,6 +231,7 @@ def update_space(id):
     except:
         return (jsonify({"Error": "Invalid body"}), 400)
 
+
 @app.delete("/spaces/<int:id>")
 @jwt_required()
 def delete_space(id):
@@ -246,7 +251,9 @@ def delete_space(id):
 
     return (jsonify("Successful deletion"), 200)
 
-################################## BOOKING ROUTES ############################################
+
+######################## BOOKING ROUTES ###############################
+
 
 @app.get("/bookings")
 def get_all_bookings():
@@ -262,15 +269,16 @@ def get_booking(id):
     booking = Booking.query.get_or_404(id)
     return (jsonify(booking.serialize()), 200)
 
+
 @app.post("/bookings")
 @jwt_required()
 def create_booking():
-    ''' Create a new booking '''
+    """Create a new booking"""
     tokenData = get_jwt_identity()
     data = request.json
 
     try:
-        booking = Booking(**data,username=tokenData['username'])
+        booking = Booking(**data, username=tokenData["username"])
         # user = User.query.get_or_404(tokenData['username'])
         # booking.renter = user
         db.session.add(booking)
@@ -282,5 +290,56 @@ def create_booking():
     except:
         return (jsonify({"Error": "Invalid Request"}), 400)
 
-    return (jsonify({"booking":booking.serialize()}), 201)
+    return (jsonify({"booking": booking.serialize()}), 201)
 
+
+@app.route("/bookings/<int:id>", methods=["PATCH"])
+@jwt_required()
+def update_booking(id):
+    """Updates one booking's info"""
+    data = request.json
+    tokenData = get_jwt_identity()
+    booking = Booking.query.get_or_404(id)
+
+    if (
+        tokenData["username"] != booking.renter.username
+        and tokenData["isAdmin"] is False
+    ):
+        return (jsonify({"Error": "Unauthorized edit"}), 401)
+
+    if "id" in data:
+        return (jsonify({"Error": "ID is uneditable."}), 400)
+    if "space_id" in data:
+        return (jsonify({"Error": "space_id is uneditable."}), 400)
+    if "username" in data:
+        return (jsonify({"Error": "username is uneditable."}), 400)
+
+    try:
+        booking.edit_booking(**data)
+        db.session.commit()
+        return (jsonify("Booking edited successfully"), 200)
+    except:
+        return (jsonify({"Error": "Invalid body"}), 400)
+
+
+@app.delete("/bookings/<int:id>")
+@jwt_required()
+def delete_booking(id):
+    """Deletes a booking"""
+
+    tokenData = get_jwt_identity()
+    booking = Booking.query.get_or_404(id)
+
+    if (
+        tokenData["username"] != booking.renter.username
+        or tokenData["username"] != booking.space.owner.username
+    ) and tokenData["isAdmin"] is False:
+        return (jsonify({"Error": "Unauthorized deletion"}), 401)
+
+    try:
+        db.session.delete(booking)
+        db.session.commit()
+    except:
+        return (jsonify({"Error": "Deletion failed"}), 400)
+
+    return (jsonify("Successful deletion"), 200)
