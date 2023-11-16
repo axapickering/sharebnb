@@ -13,7 +13,7 @@ from flask_jwt_extended import (
 )
 import uuid
 from flask import Flask
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 
 # from PIL import Image
@@ -37,6 +37,7 @@ app.config["SQLALCHEMY_ECHO"] = True
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
     "DATABASE_URL", "postgresql:///sharebnb"
 )
+app.config["CORS_HEADERS"] = "Content-Type"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.config["SECRET_KEY"] = os.environ["SECRET_KEY"]
@@ -57,6 +58,7 @@ bucket = s3.Bucket(BUCKET_NAME)
 
 
 @app.post("/signup")
+@cross_origin()
 def signup():
     """Signs up user, returning token with user data if successful"""
     data = request.json
@@ -82,6 +84,7 @@ def signup():
 
 
 @app.post("/login")
+@cross_origin()
 def login():
     """Logs in user, returning token with user data if successful"""
     data = request.json
@@ -98,6 +101,7 @@ def login():
 
 
 @app.get("/users")
+@cross_origin()
 def get_all_users():
     """Gets a list of all users"""
     users = User.query.all()
@@ -106,6 +110,7 @@ def get_all_users():
 
 
 @app.get("/users/<username>")
+@cross_origin()
 def get_user(username):
     """Get data on one user"""
     user = User.query.get_or_404(username)
@@ -114,6 +119,7 @@ def get_user(username):
 
 @app.route("/users/<username>", methods=["PATCH"])
 @jwt_required()
+@cross_origin()
 def update_user(username):
     """Updates one user's info"""
     data = request.json
@@ -141,6 +147,7 @@ def update_user(username):
 
 @app.delete("/users/<username>")
 @jwt_required()
+@cross_origin()
 def delete_user(username):
     """Deletes a user and their info"""
     user = get_jwt_identity()
@@ -163,6 +170,7 @@ def delete_user(username):
 
 
 @app.get("/spaces")
+@cross_origin()
 def get_all_spaces():
     """Gets a list of all spaces"""
     print("QUERY:    !!!!!   ", request.args.get("nameLike"))
@@ -177,6 +185,7 @@ def get_all_spaces():
 
 
 @app.get("/spaces/<int:id>")
+@cross_origin()
 def get_space(id):
     """Get data on one space"""
     space = Space.query.get_or_404(id)
@@ -185,6 +194,7 @@ def get_space(id):
 
 @app.post("/spaces")
 @jwt_required()
+@cross_origin()
 def create_listing():
     """Creates a new listing"""
     data = request.form
@@ -221,6 +231,7 @@ def create_listing():
 
 
 @app.route("/spaces/<int:id>", methods=["PATCH"])
+@cross_origin()
 @jwt_required()
 def update_space(id):
     """Updates one space's info"""
@@ -243,6 +254,7 @@ def update_space(id):
 
 
 @app.delete("/spaces/<int:id>")
+@cross_origin()
 @jwt_required()
 def delete_space(id):
     """Deletes a space"""
@@ -266,6 +278,7 @@ def delete_space(id):
 
 
 @app.get("/bookings")
+@cross_origin()
 def get_all_bookings():
     """Gets a list of all bookings"""
     bookings = Booking.query.all()
@@ -274,6 +287,7 @@ def get_all_bookings():
 
 
 @app.get("/bookings/<int:id>")
+@cross_origin()
 def get_booking(id):
     """Get data on one booking"""
     booking = Booking.query.get_or_404(id)
@@ -281,6 +295,7 @@ def get_booking(id):
 
 
 @app.post("/bookings")
+@cross_origin()
 @jwt_required()
 def create_booking():
     """Create a new booking"""
@@ -304,6 +319,7 @@ def create_booking():
 
 
 @app.route("/bookings/<int:id>", methods=["PATCH"])
+@cross_origin()
 @jwt_required()
 def update_booking(id):
     """Updates one booking's info"""
@@ -333,6 +349,7 @@ def update_booking(id):
 
 
 @app.delete("/bookings/<int:id>")
+@cross_origin()
 @jwt_required()
 def delete_booking(id):
     """Deletes a booking"""
