@@ -1,7 +1,8 @@
-import React, { useContext } from "react";
-import userContext from "../context/userContext";
+import React, { useContext, useState } from "react";
+import userContext from "../userContext";
 
-function LoginForm() {
+function LoginForm({ login }) {
+
   const [formData, setFormData] = useState({});
 
   function handleChange(evt) {
@@ -11,7 +12,7 @@ function LoginForm() {
 
   function handleSubmit(evt) {
     evt.preventDefault();
-    submit(formData);
+    login(formData);
   }
 
   return <form onSubmit={handleSubmit}>
