@@ -1,8 +1,10 @@
 import React, { useContext } from "react";
-import userContext from "../userContext";
+import NewListingForm from "../Forms/NewListingForm";
 
-function UserListingsPage() {
-  return <></>
+function UserListingsPage({ submit }) {
+  return <>
+    <NewListingForm submit={submit} />
+  </>;
 }
 
 export default UserListingsPage;

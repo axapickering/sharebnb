@@ -1,13 +1,20 @@
-import React, { useContext } from "react";
-import userContext from "../context/userContext";
+import React, { useContext, useState } from "react";
+import userContext from "../userContext";
 
-function NewListingForm() {
+function NewListingForm({ submit }) {
+  const initialFormData = {
+    title: "",
+    description: "",
+    price: 0,
+    address: "",
+    image: null
+  };
 
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(initialFormData);
 
   function handleChange(evt) {
-    const { name , value } = evt;
-    setFormData(oldData => ({...oldData,[name]:value}));
+    const { name, value } = evt.target;
+    setFormData(oldData => ({ ...oldData, [name]: value }));
   }
 
   function handleSubmit(evt) {
@@ -15,8 +22,71 @@ function NewListingForm() {
     submit(formData);
   }
 
-  return <form onSubmit={handleSubmit}>
-    </form>
+  return (
+    <div className="mx-auto mt-3" style={{ width: '400px' }}>
+      <form onSubmit={handleSubmit}>
+
+        <div className="form-group">
+          <label htmlFor="title">title</label>
+          <input className="form-control"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="description">description</label>
+          <input type="description"
+            className="form-control"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="price">price</label>
+          <input type="number"
+            className="form-control"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="address">address</label>
+          <input type="address"
+            className="form-control"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="Image">Image</label>
+          <input type="file"
+            className="form-control"
+            name="image"
+            value={formData.image}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <button type="submit" className="btn btn-primary mt-3">Submit</button>
+
+      </form>
+    </div>
+
+  );
 }
 
 export default NewListingForm;

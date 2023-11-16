@@ -16,9 +16,9 @@ class ShareBnbApi {
   static token = "";
 
   static async request(endpoint, data = {}, method = "GET") {
-    const url = new URL(`${BASE_URL}/${endpoint}`);
+    const url = new URL(`${ BASE_URL }/${ endpoint }`);
     const headers = {
-      authorization: `Bearer ${this.token}`,
+      authorization: `Bearer ${ this.token }`,
       'content-type': 'application/json',
     };
 
@@ -56,7 +56,7 @@ class ShareBnbApi {
   /** Get details on a company by handle. */
 
   static async getListing(id) {
-    let res = await this.request(`spaces/${id}`);
+    let res = await this.request(`spaces/${ id }`);
     return res;
   }
 
@@ -66,7 +66,8 @@ class ShareBnbApi {
       ? await this.request('spaces', { nameLike })
       : await this.request('spaces');
 
-    return res.companies;
+    console.log(res);
+    return res.spaces;
   }
 
   /**Get all jobs */
@@ -89,25 +90,46 @@ class ShareBnbApi {
 
   /**Takes username and password from login form and signs in the user via APi call */
   static async login(userData) {
-    console.log("user data : ",userData)
+    console.log("user data : ", userData);
     let res = await this.request('login', userData, "POST");
     return res;
   }
 
   /**Takes username and calls API to get the rest of the user data */
   static async getUserInfo(username) {
-    let res = await this.request(`users/${username}`);
+    let res = await this.request(`users/${ username }`);
     return res;
   }
 
   /** Takes in userdata and calls API to update user's data with new values*/
   static async update({ username, firstName, lastName, email }) {
-    let res = await this.request(`users/${username}`,
+    let res = await this.request(`users/${ username }`,
       { firstName, lastName, email },
       "PATCH");
     return res;
   }
 
+  /** Create new listing */
+  static async uploadListing(data) {
+    console.log(data);
+    const formDataObj = new FormData();
+    formDataObj.append("title", data.title);
+    formDataObj.append("description", data.description);
+    formDataObj.append("price", data.price);
+    formDataObj.append("address", data.address);
+    formDataObj.append("image", data.image);
+    console.log("DATA OBJ", formDataObj);
+    console.log(this.token);
+    const response = await fetch(`${ BASE_URL }/spaces`, {
+      method: 'POST',
+      body: formDataObj,
+      headers: {
+        "Authorization": `Bearer ${ this.token }`,
+      }
+    });
+
+    return response;
+  }
 }
 
 export default ShareBnbApi;
