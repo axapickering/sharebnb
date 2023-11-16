@@ -140,7 +140,8 @@ def update_user(username):
 
     try:
         db.session.commit()
-        return (jsonify(f"{username} edited successfully"), 200)
+        userReturn = User.query.get_or_404(tokenData["username"])
+        return (jsonify(userReturn.serialize()), 200)
     except IntegrityError:
         return (jsonify({"Error": "Invalid body"}), 400)
 
@@ -192,8 +193,8 @@ def get_space(id):
 
 
 @app.post("/spaces")
-@jwt_required()
 @cross_origin()
+@jwt_required()
 def create_listing():
     """Creates a new space"""
     data = request.form

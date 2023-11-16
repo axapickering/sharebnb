@@ -120,11 +120,11 @@ class User(db.Model):
 
         return userDict
 
-    def edit_user(self, username=None, email=None, first_name=None, last_name=None):
+    def edit_user(self, username=None, email=None, firstName=None, lastName=None):
         """Edits user profile"""
 
-        self.first_name = first_name or self.first_name
-        self.last_name = last_name or self.last_name
+        self.first_name = firstName or self.first_name
+        self.last_name = lastName or self.last_name
         self.email = email or self.email
 
 
@@ -209,7 +209,7 @@ class Space(db.Model):
         price=None,
         address=None,
         listed_at=None,
-        last_booked=None,
+        lastBooked=None,
     ):
         """Edits users space"""
 
@@ -217,7 +217,7 @@ class Space(db.Model):
         self.description = description or self.description
         self.price = price or self.price
         self.address = address or self.address
-        self.last_booked = last_booked or self.last_booked
+        self.last_booked = lastBooked or self.last_booked
 
 
 # class Image(db.Model):
@@ -307,13 +307,12 @@ class Booking(db.Model):
         username=None,
         space_id=None,
         price=None,
-        check_in=None,
-        check_out=None,
+        checkIn=None,
+        checkOut=None,
         created_at=None,
     ):
         """Edits a booking"""
 
         self.price = price or self.price
-        self.check_in = check_in or self.check_in
-        self.check_out = check_out or self.check_out
-        self.created_at = created_at or self.created_at
+        self.check_in = checkIn or self.check_in
+        self.check_out = checkOut or self.check_out
