@@ -61,7 +61,6 @@ class User(db.Model):
         backref="owner",
     )
 
-
     @classmethod
     def signup(cls, username, first_name, last_name, email, password):
         """Sign up user.
@@ -156,7 +155,7 @@ class Space(db.Model):
     )
 
     price = db.Column(
-        db.Numeric(12,2),
+        db.Numeric(12, 2),
         nullable=False,
     )
 
@@ -264,7 +263,7 @@ class Booking(db.Model):
     )
 
     price = db.Column(
-        db.Numeric(12,2),
+        db.Numeric(12, 2),
         nullable=False,
     )
 
@@ -290,7 +289,7 @@ class Booking(db.Model):
     def serialize(self):
         """Serialize to dictionary."""
 
-        return  {
+        return {
             "id": self.id,
             "username": self.username,
             "spaceId": self.space_id,
@@ -299,3 +298,20 @@ class Booking(db.Model):
             "checkOut": self.check_out,
             "createdAt": self.created_at,
         }
+
+    def edit_booking(
+        self,
+        id=None,
+        username=None,
+        space_id=None,
+        price=None,
+        check_in=None,
+        check_out=None,
+        created_at=None,
+    ):
+        """Edits user profile"""
+
+        self.price = price or self.price
+        self.check_in = check_in or self.check_in
+        self.check_out = check_out or self.check_out
+        self.created_at = created_at or self.created_at
