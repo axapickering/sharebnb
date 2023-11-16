@@ -212,7 +212,6 @@ class Space(db.Model):
         self.price = price or self.price
         self.address = address or self.address
         self.last_booked = last_booked or self.last_booked
-        self.listed_at = listed_at or self.listed_at
 
 
 # class Image(db.Model):

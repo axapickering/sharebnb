@@ -204,7 +204,7 @@ def create_listing():
 @app.route("/spaces/<int:id>", methods=["PATCH"])
 @jwt_required()
 def update_space(id):
-    """Updates one user's info"""
+    """Updates one space's info"""
     data = request.json
     tokenData = get_jwt_identity()
     space = Space.query.get_or_404(id)
@@ -212,16 +212,14 @@ def update_space(id):
     if tokenData["username"] != space.owner and tokenData["isAdmin"] is False:
         return (jsonify({"Error": "Unauthorized edit"}), 401)
 
-    if "username" in data:
-        return (jsonify({"Error": "Cannot edit username"}), 401)
+    if id in data:
+        return (jsonify({"Error": "ID is uneditable."}), 400)
 
-    if "isAdmin" in data and tokenData["isAdmin"] is False:
-        return (jsonify({"Error": "Cannot edit admin status"}), 401)
 
-    user.edit_user(**data)
+    space.edit_space(**data)
 
     try:
         db.session.commit()
-        return (jsonify(f"{username} edited successfully"), 200)
+        return (jsonify("Space edited successfully"), 200)
     except IntegrityError:
         return (jsonify({"Error": "Invalid body"}), 400)
