@@ -9,7 +9,7 @@ function LoginForm({ login }) {
   const [errors, setErrors] = useState(null);
 
   function handleChange(evt) {
-    const { name , value } = evt;
+    const { name , value } = evt.target;
     setFormData(oldData => ({...oldData,[name]:value}));
   }
 

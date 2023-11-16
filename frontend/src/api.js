@@ -63,8 +63,8 @@ class ShareBnbApi {
   /**Get Listings by title */
   static async getListings(nameLike) {
     let res = nameLike
-      ? await this.request('/spaces', { nameLike })
-      : await this.request('/spaces');
+      ? await this.request('spaces', { nameLike })
+      : await this.request('spaces');
 
     return res.companies;
   }
@@ -83,14 +83,14 @@ class ShareBnbApi {
    * response
    */
   static async signup(userData) {
-    let res = await this.request('/signup', userData, "POST");
+    let res = await this.request('signup', userData, "POST");
     return res;
   }
 
   /**Takes username and password from login form and signs in the user via APi call */
   static async login(userData) {
     console.log("user data : ",userData)
-    let res = await this.request('/login', userData, "POST");
+    let res = await this.request('login', userData, "POST");
     return res;
   }
 
