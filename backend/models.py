@@ -100,16 +100,21 @@ class User(db.Model):
 
         return False
 
-    def serialize(self):
+    def serialize(self, showListing=True):
         """Serialize to dictionary."""
-
-        return {
+        userDict = {
             "username": self.username,
             "firstName": self.first_name,
             "lastName": self.last_name,
             "email": self.email,
             "isAdmin": self.isAdmin,
         }
+
+        if showListing:
+            listings = [listing.serialize(showOwner=False) for listing in self.listings]
+            userDict["listings"] = listings
+
+        return userDict
 
     def edit_user(self, username=None, email=None, first_name=None, last_name=None):
         """Edits user profile"""
@@ -129,7 +134,7 @@ class Space(db.Model):
         primary_key=True,
     )
 
-    owner_username = db.Column(
+    owner_user = db.Column(
         db.String(40),
         db.ForeignKey("users.username"),
         nullable=False,
@@ -153,7 +158,7 @@ class Space(db.Model):
     address = db.Column(
         db.String(120),
         nullable=False,
-        unique=True,
+        unique=False,
     )
 
     listed_at = db.Column(
@@ -171,11 +176,10 @@ class Space(db.Model):
 
     # images = db.relationship("Image", backref="listing")
 
-    def serialize(self):
+    def serialize(self, showOwner=True):
         """Serialize to dictionary."""
         print("OWNER", self.owner)
-        user = self.owner.serialize()
-        return {
+        listingDict = {
             "id": self.id,
             "title": self.title,
             "description": self.description,
@@ -184,8 +188,12 @@ class Space(db.Model):
             "listed_at": self.listed_at,
             "last_booked": self.last_booked,
             "image_url": self.image_url,
-            "owner": user,
         }
+
+        if showOwner:
+            user = self.owner.serialize(showListing=False)
+            listingDict["owner"] = user
+        return listingDict
 
     def edit_space(
         self,
@@ -205,26 +213,6 @@ class Space(db.Model):
         self.address = address or self.address
         self.last_booked = last_booked or self.last_booked
         self.listed_at = listed_at or self.listed_at
-
-
-# class User_Space(db.Model):
-#     """User Spaces Thru table"""
-
-#     __tablename__ = "users_spaces"
-
-#     username = db.Column(
-#         db.String(30),
-#         db.ForeignKey("users.username"),
-#         primary_key=True,
-#         nullable=False,
-#     )
-
-#     space_id = db.Column(
-#         db.Integer,
-#         db.ForeignKey("spaces.id"),
-#         primary_key=True,
-#         nullable=False,
-#     )
 
 
 # class Image(db.Model):

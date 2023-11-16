@@ -91,7 +91,7 @@ def login():
 def get_all_users():
     """Gets a list of all users"""
     users = User.query.all()
-    serialized = [user.serialize() for user in users]
+    serialized = [user.serialize(showListing=False) for user in users]
     return jsonify({"users": serialized})
 
 
@@ -186,8 +186,10 @@ def create_listing():
 
         url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{random_uuid}"
         space = Space(**data, image_url=url)
+        print("CREATE SPACE", space)
         user = User.query.get_or_404(user["username"])
-        space.owner = user
+        user.listings.append(space)
+        print("SET OWNER", space)
         db.session.add(space)
         db.session.commit()
 
