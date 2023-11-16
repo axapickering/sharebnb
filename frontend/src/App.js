@@ -16,9 +16,11 @@ function App() {
   useEffect(function () {
     async function fetchUserInfo() {
       if (token) {
+        console.log("token",token);
         localStorage.setItem("token", token)
         ShareBnbApi.token = token;
-        const userInfo = jwtDecode(token);
+        const userInfo = jwtDecode(token).sub;
+        console.log("userInfo",userInfo);
         try {
           let user = await ShareBnbApi.getUserInfo(userInfo.username);
           setUser(user);
@@ -37,13 +39,17 @@ function App() {
   }, [token]);
 
   async function signup(formData) {
+    console.log("signup reached. fdata:",formData)
     let res = await ShareBnbApi.signup(formData);
-    setToken(res.token);
+    console.log("res",res)
+    setToken(res['access_token']);
   }
 
   async function login(formData) {
+    console.log("login reached. fdata:",formData)
     let res = await ShareBnbApi.login(formData);
-    setToken(res.token);
+    console.log("res",res)
+    setToken(res['access_token']);
   }
 
   return (
