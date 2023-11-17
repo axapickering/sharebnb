@@ -1,7 +1,9 @@
+from flask import Flask, request, jsonify
 from datetime import timedelta
 import os
+import uuid
 import boto3
-from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
 from dotenv import load_dotenv
 from models import db, connect_db, User, Space, Booking
 from sqlalchemy.exc import IntegrityError
@@ -11,15 +13,6 @@ from flask_jwt_extended import (
     jwt_required,
     JWTManager,
 )
-import uuid
-from flask import Flask
-from flask_cors import CORS, cross_origin
-
-
-# from PIL import Image
-
-# from botocore.exceptions import ClientError
-# from flask_uuid import FlaskUUID
 
 
 app = Flask(__name__)
@@ -45,7 +38,6 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_SECRET_KEY"] = os.environ["JWT_SECRET_KEY"]
 
 connect_db(app)
-# FlaskUUID(app)
 
 BOTO3 = boto3.client(
     "s3", aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY
@@ -172,8 +164,8 @@ def delete_user(username):
 @app.get("/spaces")
 @cross_origin()
 def get_all_spaces():
-    """Gets a list of all spaces"""
-    print("QUERY:    !!!!!   ", request.args.get("nameLike"))
+    """Gets a list of all spaces, optionally filtering on nameLike arg"""
+
     query = request.args.get("nameLike")
     spaces = (
         Space.query.filter(Space.title.ilike(f"%{query}%"))
@@ -187,7 +179,7 @@ def get_all_spaces():
 @app.get("/spaces/<int:id>")
 @cross_origin()
 def get_space(id):
-    """Get data on one space"""
+    """Get data on one space by id"""
     space = Space.query.get_or_404(id)
     return (jsonify(space.serialize(showBookings=True)), 200)
 
