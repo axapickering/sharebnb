@@ -17,6 +17,11 @@ function NewListingForm({ submit }) {
     setFormData(oldData => ({ ...oldData, [name]: value }));
   }
 
+  function handleFile(evt) {
+    const file = evt.target.files[0];
+    setFormData(oldData => ({...oldData, "image":file}))
+  }
+
   function handleSubmit(evt) {
     evt.preventDefault();
     submit(formData);
@@ -75,8 +80,7 @@ function NewListingForm({ submit }) {
           <input type="file"
             className="form-control"
             name="image"
-            value={formData.image}
-            onChange={handleChange}
+            onChange={handleFile}
             required
           />
         </div>

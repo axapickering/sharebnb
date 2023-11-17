@@ -197,14 +197,13 @@ def get_space(id):
 @jwt_required()
 def create_listing():
     """Creates a new space"""
-    data = request.form
 
-    print("Image:", request.files["image"])
-    print("Form:", data)
+    data = request.form
 
     user = get_jwt_identity()
     random_uuid = str(uuid.uuid4())
     image = request.files.get("image")
+
 
     try:
         bucket.upload_fileobj(
@@ -215,7 +214,7 @@ def create_listing():
 
         url = f"https://{BUCKET_NAME}.s3.amazonaws.com/{random_uuid}"
         space = Space(**data, image_url=url)
-        user = User.query.get_or_404(user["username"])
+        user = User.query.get_or_404(user['username'])
         user.listings.append(space)
         db.session.add(space)
         db.session.commit()

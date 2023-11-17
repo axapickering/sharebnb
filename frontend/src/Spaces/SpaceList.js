@@ -1,9 +1,13 @@
 import React, { useContext } from "react";
 import userContext from "../userContext";
+import Space from "./Space";
 
 function SpaceList({ listings }) {
-  return <div>
-    {listings.map(listing => (<div><h1>{listing.title}</h1></div>))}
+
+  if (listings.length === 0) return <p></p>
+
+  return <div className="m-3">
+    {listings.map(listing => (<Space listing={listing}/>))}
   </div>;
 }
 
