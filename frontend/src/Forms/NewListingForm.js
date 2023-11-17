@@ -1,7 +1,9 @@
 import React, { useContext, useState } from "react";
 import userContext from "../userContext";
 
-function NewListingForm({ submit }) {
+
+/**  */
+function NewListingForm({ submit, toggleForm, fetchListings }) {
   const initialFormData = {
     title: "",
     description: "",
@@ -12,19 +14,24 @@ function NewListingForm({ submit }) {
 
   const [formData, setFormData] = useState(initialFormData);
 
+  /** handles change of input fields of form*/
   function handleChange(evt) {
     const { name, value } = evt.target;
     setFormData(oldData => ({ ...oldData, [name]: value }));
   }
 
+  /** handles file field of form*/
   function handleFile(evt) {
     const file = evt.target.files[0];
-    setFormData(oldData => ({...oldData, "image":file}))
+    setFormData(oldData => ({ ...oldData, "image": file }));
   }
 
-  function handleSubmit(evt) {
+  /** handles submission of form*/
+  async function handleSubmit(evt) {
     evt.preventDefault();
-    submit(formData);
+    await submit(formData);
+    toggleForm();
+    fetchListings();
   }
 
   return (

@@ -5,10 +5,12 @@ import userContext from "../userContext";
 import ShareBnbApi from "../api";
 import LoadingSpinner from "../LoadingSpinner";
 
-function UserListingsPage({ submit }) {
-
+function UserListingsPage({ submit, deleteListing }) {
+  const [showForm, setShowForm] = useState(false);
   const [listings, setListings] = useState(null);
   const { username } = useContext(userContext);
+
+
 
   useEffect(function getListings() {
     fetchUserListings();
@@ -20,12 +22,16 @@ function UserListingsPage({ submit }) {
     setListings(userInfo.listings);
   }
 
+  function toggleForm() {
+    setShowForm(value => !value);
+  }
+
   if (!listings) return <LoadingSpinner title={"listings"} />;
-  if (!listings.length) return <h2>No Listings Found</h2>;
 
   return <>
-    <NewListingForm submit={submit} />
-    <SpaceList listings={listings}/>
+    <button onClick={toggleForm} className="btn btn-primary mt-3">Add new listing</button>
+    {showForm && <NewListingForm submit={submit} toggleForm={toggleForm} fetchListings={fetchUserListings} />}
+    {listings.length ? <SpaceList listings={listings} deleteListing={deleteListing} fetchListings={fetchUserListings} /> : <h2>No Listings Found</h2>}
   </>;
 }
 

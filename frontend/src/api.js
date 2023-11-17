@@ -70,7 +70,7 @@ class ShareBnbApi {
     return res.spaces;
   }
 
-  /**Get all jobs */
+  /**Get a booking */
   static async getBooking(title) {
     let res = title
       ? await this.request('jobs', { title })
@@ -129,6 +129,12 @@ class ShareBnbApi {
     });
 
     return response;
+  }
+
+  static async deleteListing(id) {
+    console.log("id : ", id);
+    let res = await this.request(`spaces/${ id }`, undefined, "DELETE");
+    return res;
   }
 }
 

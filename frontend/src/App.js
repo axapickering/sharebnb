@@ -68,6 +68,10 @@ function App() {
     setToken(null);
   }
 
+  async function deleteListing(id) {
+    await ShareBnbApi.deleteListing(id);
+  }
+
 
   // function that gets user listings and navigates to listings page, passing in user listings as prop
   if (isLoading) return <p>Loadingggg...</p>;
@@ -75,11 +79,11 @@ function App() {
     <div>
       <userContext.Provider value={user}>
         <BrowserRouter>
-          <Navbar logout={logout}/>
+          <Navbar logout={logout} />
           <div className="App container">
             <div className="row">
               <div className="col-9">
-                <RoutesList signup={signup} login={login} edit={edit} submit={uploadListing} />
+                <RoutesList signup={signup} login={login} edit={edit} submit={uploadListing} deleteListing={deleteListing} />
               </div>
             </div>
           </div>
