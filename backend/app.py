@@ -13,6 +13,7 @@ from flask_jwt_extended import (
     jwt_required,
     JWTManager,
 )
+from seed import seed_db
 
 
 app = Flask(__name__)
@@ -38,6 +39,7 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_SECRET_KEY"] = os.environ["JWT_SECRET_KEY"]
 
 connect_db(app)
+seed_db()
 
 BOTO3 = boto3.client(
     "s3", aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=AWS_SECRET_KEY
