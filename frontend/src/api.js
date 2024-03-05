@@ -1,5 +1,4 @@
-const BASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
-console.log(BASE_URL)
+const BASE_URL = process.env.REACT_APP_BASE_URL || "https://sharebnb.fly.dev"
 /** API Class.
  *
  * Static class tying together methods used to get/send to to the API.
