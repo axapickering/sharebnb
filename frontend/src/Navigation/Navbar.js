@@ -46,7 +46,7 @@ function Navbar({ logout }) {
   }
 
   return (
-    <nav className="navbar navbar-expand-lg " style={{backgroundColor: "#ccbcac"}}>
+    <nav className="navbar navbar-expand-lg " style={{ backgroundColor: "#ccbcac" }}>
       <div className="container-fluid">
         <Link className="navbar-brand" to={`/`}>ShareBnB</Link>
         <div id="navbarSupportedContent">

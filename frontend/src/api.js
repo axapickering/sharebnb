@@ -38,12 +38,12 @@ class ShareBnbApi {
       console.error("API Error:", resp.statusText, resp.status);
       const { error } = await resp.json();
 
-      if (Array.isArray(error.message)) {
-        throw error.message;
+      if (Array.isArray(error)) {
+        throw error;
       }
       else {
-        console.log(error.message);
-        throw [error.message];
+        console.log(error);
+        throw [error];
       }
 
     }
@@ -70,14 +70,6 @@ class ShareBnbApi {
     return res.spaces;
   }
 
-  /**Get a booking */
-  static async getBooking(title) {
-    let res = title
-      ? await this.request('jobs', { title })
-      : await this.request(`jobs`);
-    return res.jobs;
-  }
-
   // User API routes
 
   /**Takes user data from signup form calls api to register the user, returns
@@ -101,7 +93,7 @@ class ShareBnbApi {
     return res;
   }
 
-  /** Takes in userdata and calls API to update user's data with new values*/
+  /** Takes in userData and calls API to update user's data with new values*/
   static async update({ username, firstName, lastName, email }) {
     let res = await this.request(`users/${ username }`,
       { firstName, lastName, email },
@@ -134,6 +126,27 @@ class ShareBnbApi {
   static async deleteListing(id) {
     console.log("id : ", id);
     let res = await this.request(`spaces/${ id }`, undefined, "DELETE");
+    return res;
+  }
+
+  /** BOOKINGS */
+
+  /**Get a booking */
+  static async getBooking(id) {
+    const res = await this.request(`bookings/${ id }`);
+    return res;
+  }
+
+  /**Get all bookings */
+  static async getBookings(title) {
+    let res = title
+      ? await this.request('bookings', { title })
+      : await this.request(`bookings`);
+    return res.bookings;
+  }
+
+  static async createBooking(bookingData) {
+    let res = await this.request('bookings', bookingData, "POST");
     return res;
   }
 }

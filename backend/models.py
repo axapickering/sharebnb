@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql import ExcludeConstraint
 from flask_bcrypt import Bcrypt
+from psycopg2.extras import DateRange
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
@@ -246,7 +248,7 @@ class Booking(db.Model):
     """Booking model"""
 
     __tablename__ = "bookings"
-
+    
     id = db.Column(
         db.Integer,
         primary_key=True,

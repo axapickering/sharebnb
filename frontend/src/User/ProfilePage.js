@@ -4,7 +4,7 @@ import EditProfileForm from "../Forms/EditProfileForm";
 
 function ProfilePage({ edit }) {
 
-  const [showEditForm,setShowEditForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const { username, firstName, lastName, email } = useContext(userContext);
 
   function toggleEditForm() {
@@ -12,14 +12,14 @@ function ProfilePage({ edit }) {
   }
 
   return <div>
-    <div className="ProfilePage-UserDetails">
+    <div className="ProfilePage-UserDetails mt-5">
       <h2>{firstName} {lastName}</h2>
       <h4>Username: {username}</h4>
       <p>Email: {email}</p>
       <button onClick={toggleEditForm} className="btn btn-primary">Edit</button>
     </div>
-    {showEditForm && <EditProfileForm edit={edit}/>}
-  </div>
+    {showEditForm && <EditProfileForm edit={edit} />}
+  </div>;
 }
 
 export default ProfilePage;

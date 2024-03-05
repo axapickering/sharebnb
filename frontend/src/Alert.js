@@ -4,9 +4,10 @@ import React from 'react';
  * {LoginForm, SignupForm, ProfilePage} -> Alert
  */
 function Alert({ alerts, color }) {
+  alerts = Array(alerts);
   return (
     <div className={`alert alert-${ color } mt-3`} role="alert">
-      {alerts.map(alert => <p className="m-0" key={alert}>{alert}</p>)}
+      {alerts.map(alert => <p className="m-0" key={alert.m}>{alert}</p>)}
     </div>
   );
 }

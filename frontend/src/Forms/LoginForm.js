@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { BrowserRouter, Navigate, useNavigate } from 'react-router-dom';
 import userContext from "../userContext";
+import Alert from "../Alert";
 
 function LoginForm({ login }) {
   const navigate = useNavigate();
@@ -9,8 +10,8 @@ function LoginForm({ login }) {
   const [errors, setErrors] = useState(null);
 
   function handleChange(evt) {
-    const { name , value } = evt.target;
-    setFormData(oldData => ({...oldData,[name]:value}));
+    const { name, value } = evt.target;
+    setFormData(oldData => ({ ...oldData, [name]: value }));
   }
 
   async function handleSubmit(evt) {
@@ -20,12 +21,13 @@ function LoginForm({ login }) {
       setFormData({ username: "", password: "" });
       navigate("/");
     } catch (err) {
-      setErrors(err);
+      setErrors('failed to login');
     }
   }
 
   return (
     <div className="mx-auto mt-3" style={{ width: '400px' }}>
+      {errors && <Alert alerts={errors} color='danger' />}
       <form onSubmit={handleSubmit}>
 
         <div className="form-group">
@@ -51,7 +53,7 @@ function LoginForm({ login }) {
         <button type="submit" className="btn btn-primary mt-3">Submit</button>
 
       </form>
-      </div>);
+    </div>);
 }
 
 export default LoginForm;
