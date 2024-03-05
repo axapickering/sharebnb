@@ -1,12 +1,10 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import SpaceList from "./Spaces/SpaceList";
-import userContext from './userContext';
 import ShareBnbApi from './api';
 import LoadingSpinner from './LoadingSpinner';
 
 function HomePage() {
   const [listings, setListings] = useState(null);
-  const user = useContext(userContext);
 
   useEffect(function getListings() {
     fetchListings();

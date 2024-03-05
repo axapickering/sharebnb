@@ -12,7 +12,7 @@ function SpaceDetailPage() {
 
   useEffect(function getSpaceOnMount() {
     getSpace(id);
-  }, []);
+  }, [id]);
 
   async function getSpace(id) {
     const currSpace = await ShareBnbApi.getListing(id);

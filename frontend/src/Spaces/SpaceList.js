@@ -1,5 +1,3 @@
-import React, { useContext } from "react";
-import userContext from "../userContext";
 import Space from "./Space";
 
 function SpaceList({ listings, deleteListing, fetchListings }) {
